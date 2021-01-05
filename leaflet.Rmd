@@ -1,0 +1,132 @@
+---
+title: "leaflet"
+author: "Maggie Klope"
+date: "1/5/2021"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+
+library(tidyverse)
+library(leaflet)
+library(leaflet.minicharts)
+library(sf)
+
+```
+
+## Leaflet: Easily create interactive maps
+
+### Combatible with a lot of different data sources
+
+- lat/long matrices
+- data frame with lat/long columns
+- data types from the sp package (SpatialPoints, lines, Polygons, SpatialPolygons)
+
+## Basic Map with one point
+```{r}
+ca_capitol <- leaflet() %>%
+  addTiles() %>% #loads default map
+  addMarkers(lat = 38.576572, lng = -121.4930107, popup = "CA State Capitol")
+
+ca_capitol
+
+```
+
+## Using shapefiles
+```{r}
+# use sf to read the shapefile
+birds <- st_read("ds78.shp") %>% 
+  filter(LONGITUDE != 0.0000) %>%  # removing a few data points that were missing lat/long
+  filter(REGION == "Southwest")
+
+bird_map <- leaflet(data = birds) %>% 
+  addTiles() %>% 
+  addMarkers(lat = birds$LATITUDE, lng = birds$LONGITUDE)
+
+
+```
+
+## Basic Map Customization
+
+### Lots of different backgrounds maps you can use with addProviderTiles()
+
+add link here
+
+```{r}
+# from more informative
+bird_map %>% addProviderTiles(providers$Esri.WorldImagery)
+
+# to more artistic
+bird_map %>% addProviderTiles(providers$Stamen.Watercolor)
+
+# to more... metal
+bird_map %>% addProviderTiles(providers$Thunderforest.SpinalMap) # not working
+
+
+```
+
+## cluster maps
+```{r}
+leaflet(data = birds) %>%
+  addTiles() %>%
+  addMarkers(lat = birds$LATITUDE, lng = birds$LONGITUDE,
+  clusterOptions = markerClusterOptions()
+)
+
+```
+
+## can do fun things like add custom icons
+```{r}
+
+pelicans <- birds %>% 
+  filter(BRPN == "Y")
+
+pelican_icon <- makeIcon(iconUrl = "pelican.png", iconHeight = 20, iconWidth = 20)
+
+leaflet(data = pelicans) %>% 
+  addTiles() %>% 
+  addMarkers(lat = pelicans$LATITUDE, lng = pelicans$LONGITUDE, icon = pelican_icon)
+  
+```
+
+## Using the leaflet.minicharts package, you can add figures over your map
+
+```{r}
+bird_matrix <- as.tibble(birds)
+
+leaflet(data = bird_matrix) %>% 
+  addTiles() %>% 
+  addMinicharts(
+    lng = bird_matrix$LONGITUDE,
+    lat = bird_matrix$LATITUDE,
+    type = "bar",
+    chartdata = bird_matrix[, c("SCORE", "THREAT")])
+
+leaflet(data = bird_matrix) %>% 
+  addTiles() %>% 
+  addMinicharts(
+    lng = bird_matrix$LONGITUDE,
+    lat = bird_matrix$LATITUDE,
+    type = "pie",
+    chartdata = bird_matrix[, c("SCORE", "THREAT")])
+
+leaflet(data = bird_matrix) %>% 
+  addTiles() %>% 
+  addMinicharts(
+    lng = bird_matrix$LONGITUDE,
+    lat = bird_matrix$LATITUDE,
+    showLabels = TRUE,
+    chartdata = bird_matrix$SCORE)
+
+```
+
+## Compatible with Shiny
+
+
+```{r
+
+
+```
+
+
