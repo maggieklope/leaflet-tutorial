@@ -8,6 +8,12 @@ output: html_document
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
 
+# # install packages if you have not already
+# install.packages("tidyverse")
+# install.packages("leaflet")
+# install.packages("leaflet.minicharts")
+# install.packages("sf")
+
 library(tidyverse)
 library(leaflet)
 library(leaflet.minicharts)
@@ -17,37 +23,43 @@ library(sf)
 
 ## Leaflet: Easily create interactive maps
 
-### Combatible with a lot of different data sources
+- Uses the Leaflet open-source JavaScript library
+- Interactive zoom
+- Can be embedded into R Markdown and Shiny apps
+- Compatible with a lot of data types (dataframes with lat/long columns, sp and sf package spatial objects)
 
-- lat/long matrices
-- data frame with lat/long columns
-- data types from the sp package (SpatialPoints, lines, Polygons, SpatialPolygons)
 
-## Basic Map with one point
+### Basic Map with one point
 ```{r}
-ca_capitol <- leaflet() %>%
-  addTiles() %>% #loads default map
-  addMarkers(lat = 38.576572, lng = -121.4930107, popup = "CA State Capitol")
 
-ca_capitol
+# using lat/long for the CA Capitol
+ca_capitol <- leaflet() %>% #using the '%>%' pipe from tidyverse
+  addTiles() %>% #loads default baselayer map
+  addMarkers(lat = 38.576572, lng = -121.4930107, popup = "CA State Capitol") #popup will add a small window that aappear over the point
 
+# adding more features
+ca_capitol %>% 
+  addProviderTiles(providers$Esri.WorldStreetMap) %>% #changes basemap
+  addMiniMap() %>% #add in a second zoomed out map %>% 
+  addScaleBar()
+  
 ```
 
-## Using shapefiles
+### Using shapefile
+
 ```{r}
+
 # use sf to read the shapefile
 birds <- st_read("ds78.shp") %>% 
   filter(LONGITUDE != 0.0000) %>%  # removing a few data points that were missing lat/long
   filter(REGION == "Southwest")
 
+# creating a point map
 bird_map <- leaflet(data = birds) %>% 
   addTiles() %>% 
   addMarkers(lat = birds$LATITUDE, lng = birds$LONGITUDE)
 
-
 ```
-
-## Basic Map Customization
 
 ### Lots of different backgrounds maps you can use with addProviderTiles()
 
@@ -63,10 +75,9 @@ bird_map %>% addProviderTiles(providers$Stamen.Watercolor)
 # to more... metal
 bird_map %>% addProviderTiles(providers$Thunderforest.SpinalMap) # not working
 
-
 ```
 
-## cluster maps
+### Creating a cluster map
 ```{r}
 leaflet(data = birds) %>%
   addTiles() %>%
@@ -76,22 +87,24 @@ leaflet(data = birds) %>%
 
 ```
 
-## can do fun things like add custom icons
+### Creating custom icons
 ```{r}
-
+# making a dataset for locations where brown pelicans (BRPN) were detected
 pelicans <- birds %>% 
-  filter(BRPN == "Y")
+  filter(BRPN == "Y") # filtering where the BRPN column has a "Y" for yes
 
+# using the makeIcon() function to load a .png file
 pelican_icon <- makeIcon(iconUrl = "pelican.png", iconHeight = 20, iconWidth = 20)
 
 leaflet(data = pelicans) %>% 
   addTiles() %>% 
-  addMarkers(lat = pelicans$LATITUDE, lng = pelicans$LONGITUDE, icon = pelican_icon)
+  addMarkers(lat = pelicans$LATITUDE, 
+             lng = pelicans$LONGITUDE, 
+             icon = pelican_icon) # setting the icon argument to the png that we loaded
   
 ```
 
-## Using the leaflet.minicharts package, you can add figures over your map
-
+### Using the leaflet.minicharts package, you can add figures over your map
 ```{r}
 bird_matrix <- as.tibble(birds)
 
@@ -121,12 +134,34 @@ leaflet(data = bird_matrix) %>%
 
 ```
 
-## Compatible with Shiny
+### Maps with Polylines
 
+```{r}
 
-```{r
+# loading example dataset from the leaflet package
+storm_data <- atlStorms2005
 
+# Create a continuous palette function
+palette <- colorNumeric(
+  palette = "Reds",
+  domain = storm_data$MaxWind)
 
+storm <- leaflet(storm_data) %>% 
+  addTiles() %>% 
+  # addPolylines(color = "red") %>% 
+  addPolylines(color = ~palette(MaxWind), opacity = .5) %>% 
+  addLegend(pal = palette, values = ~MaxWind, 
+            title = "Maximum Wind", 
+            opacity = .5)
+
+storm
+
+# some extra features
+storm %>% 
+  addGraticule() %>% 
+  addTerminator()
 ```
 
+### Compatible with Shiny
 
+- See the leaflet_shiny_app.R file
