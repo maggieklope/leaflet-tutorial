@@ -36,7 +36,8 @@ server <- function(input, output) {
     output$bird_map <- renderLeaflet({
         leaflet(data_subset()) %>% 
             addTiles() %>% 
-            addMarkers(lat = data_subset()$LATITUDE, lng = data_subset()$LONGITUDE)
+            addMarkers(lat = data_subset()$LATITUDE, lng = data_subset()$LONGITUDE) %>% 
+            addMiniMap()
     })
 }
 
