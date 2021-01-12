@@ -26,21 +26,20 @@ library(sf)
 - Uses the Leaflet open-source JavaScript library
 - Interactive zoom
 - Can be embedded into R Markdown and Shiny apps
-- Compatible with a lot of data types (dataframes with lat/long columns, sp and sf package spatial objects)
-
+- Compatible with a lot of data types (data frames with lat/long columns, sp and sf package spatial objects)
 
 ### Basic Map with one point
 ```{r}
 
 # using lat/long for the CA Capitol
-ca_capitol <- leaflet() %>% #using the '%>%' pipe from tidyverse
-  addTiles() %>% #loads default baselayer map
-  addMarkers(lat = 38.576572, lng = -121.4930107, popup = "CA State Capitol") #popup will add a small window that aappear over the point
+ca_capitol <- leaflet() %>% # using the '%>%' pipe from tidyverse
+  addTiles() %>% # loads default baselayer map
+  addMarkers(lat = 38.576572, lng = -121.4930107, popup = "CA State Capitol") # popup will add a small window that aappear over the point
 
 # adding more features
 ca_capitol %>% 
-  addProviderTiles(providers$Esri.WorldStreetMap) %>% #changes basemap
-  addMiniMap() %>% #add in a second zoomed out map %>% 
+  addProviderTiles(providers$Esri.WorldStreetMap) %>% # changes basemap
+  addMiniMap() %>% # add in a second zoomed out map %>% 
   addScaleBar()
   
 ```
@@ -63,7 +62,7 @@ bird_map <- leaflet(data = birds) %>%
 
 ### Lots of different backgrounds maps you can use with addProviderTiles()
 
-add link here
+[Here](https://leaflet-extras.github.io/leaflet-providers/preview/) is a link to preview all the available Provider tiles
 
 ```{r}
 # from more informative
@@ -73,7 +72,7 @@ bird_map %>% addProviderTiles(providers$Esri.WorldImagery)
 bird_map %>% addProviderTiles(providers$Stamen.Watercolor)
 
 # to more... metal
-bird_map %>% addProviderTiles(providers$Thunderforest.SpinalMap) # not working
+bird_map %>% addProviderTiles(providers$Thunderforest.SpinalMap) # not working :(
 
 ```
 
@@ -81,14 +80,16 @@ bird_map %>% addProviderTiles(providers$Thunderforest.SpinalMap) # not working
 ```{r}
 leaflet(data = birds) %>%
   addTiles() %>%
-  addMarkers(lat = birds$LATITUDE, lng = birds$LONGITUDE,
-  clusterOptions = markerClusterOptions()
+  addMarkers(lat = birds$LATITUDE, 
+             lng = birds$LONGITUDE,
+             clusterOptions = markerClusterOptions()
 )
 
 ```
 
 ### Creating custom icons
 ```{r}
+
 # making a dataset for locations where brown pelicans (BRPN) were detected
 pelicans <- birds %>% 
   filter(BRPN == "Y") # filtering where the BRPN column has a "Y" for yes
@@ -108,29 +109,32 @@ leaflet(data = pelicans) %>%
 ```{r}
 bird_matrix <- as.tibble(birds)
 
+# adding barcharts
 leaflet(data = bird_matrix) %>% 
   addTiles() %>% 
   addMinicharts(
     lng = bird_matrix$LONGITUDE,
     lat = bird_matrix$LATITUDE,
-    type = "bar",
-    chartdata = bird_matrix[, c("SCORE", "THREAT")])
+    chartdata = bird_matrix[, c("SCORE", "THREAT")],
+    type = "bar") # just using the Score and Threat columns
 
+# adding piecharts
 leaflet(data = bird_matrix) %>% 
   addTiles() %>% 
   addMinicharts(
     lng = bird_matrix$LONGITUDE,
     lat = bird_matrix$LATITUDE,
-    type = "pie",
-    chartdata = bird_matrix[, c("SCORE", "THREAT")])
+    chartdata = bird_matrix[, c("SCORE", "THREAT")],
+    type = "pie")
 
+# adding label
 leaflet(data = bird_matrix) %>% 
   addTiles() %>% 
   addMinicharts(
     lng = bird_matrix$LONGITUDE,
     lat = bird_matrix$LATITUDE,
-    showLabels = TRUE,
-    chartdata = bird_matrix$SCORE)
+    chartdata = bird_matrix$SCORE,
+    showLabels = TRUE)
 
 ```
 
