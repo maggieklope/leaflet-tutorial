@@ -9,7 +9,7 @@ output: html_document
 ## Leaflet: Easily create interactive maps
 
 - Uses the [Leaflet](https://leafletjs.com/index.html) open-source JavaScript library
-- Quick way to make interactive maps
+- Quick way to make interactive htmlmaps
 - Can be embedded into R Markdown and Shiny apps
 - Compatible with a lot of data types (data frames with lat/long columns, sp and sf package spatial objects)
 
@@ -17,15 +17,17 @@ output: html_document
 knitr::opts_chunk$set(echo = TRUE)
 
 # install packages if you have not already
-# install.packages("tidyverse")
-# install.packages("leaflet")
-# install.packages("leaflet.minicharts")
-# install.packages("sf")
+# install.packages("tidyverse") # to organize data
+# install.packages("leaflet") # to map using leaflet
+# install.packages("leaflet.minicharts") # to add figures over leaflet map
+# install.packages("sf") # for reading in spatial data
+# remotes::install_github("r-spatial/mapview") # for using the mapshop function to save maps
 
 library(tidyverse)
 library(leaflet)
 library(leaflet.minicharts)
 library(sf)
+library(mapview)
 
 ```
 
@@ -72,6 +74,10 @@ birds <- st_read("ds78.shp") %>%
 bird_map <- leaflet(data = birds) %>% 
   addTiles() %>% 
   addMarkers(lat = birds$LATITUDE, lng = birds$LONGITUDE)
+
+bird_map
+
+# adding hover-over text
 
 ```
 
@@ -163,6 +169,22 @@ storm %>%
   addGraticule() %>% 	
   addTerminator()	
 ```	
+
+### Mapping Rasters
+
+```{r}
+mapshot(storm, file = storm.png)
+
+```
+
+
+### How to export maps
+
+```{r}
+
+
+```
+
 
 ### Compatible with Shiny	
 
