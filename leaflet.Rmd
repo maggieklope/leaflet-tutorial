@@ -77,7 +77,27 @@ bird_map <- leaflet(data = birds) %>%
 
 bird_map
 
-# adding hover-over text
+
+```
+
+### adding text to markers
+
+```{r}
+
+# pop-up markers when you click
+leaflet(data = birds) %>% 
+  addTiles() %>% 
+  addMarkers(lat = birds$LATITUDE, 
+             lng = birds$LONGITUDE, 
+             popup = birds$NAME)
+
+# hover-over markers
+leaflet(data = birds) %>% 
+  addTiles() %>% 
+  addMarkers(lat = birds$LATITUDE, 
+             lng = birds$LONGITUDE, 
+             label = birds$NAME)
+
 
 ```
 
@@ -173,15 +193,18 @@ storm %>%
 ### Mapping Rasters
 
 ```{r}
-mapshot(storm, file = storm.png)
+
+
 
 ```
 
 
-### How to export maps
+### How to export leaflet maps as non-html files
 
 ```{r}
 
+# save map as a .png file
+mapshot(storm, file = "storm.png") # can save as png, pdf, or jpeg
 
 ```
 
